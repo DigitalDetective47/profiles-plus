@@ -31,8 +31,6 @@ end"""
 position = "after"
 payload = """elseif SMODS.Mods then
     table.insert(SMODS.Mods.ProfilesPlus.config.save_order, _profile)
-    SMODS.Mods.ProfilesPlus.config.save_order.reverse[tostring(_profile)] = #SMODS.Mods.ProfilesPlus.config.save_order
-    SMODS.Mods.ProfilesPlus.config.save_order.reverse.New = SMODS.Mods.ProfilesPlus.config.save_order.reverse.New + 1
     SMODS.save_mod_config(SMODS.Mods.ProfilesPlus)"""
 match_indent = true
 
@@ -41,13 +39,11 @@ match_indent = true
 target = "functions/button_callbacks.lua"
 pattern = """for i = 1, 3 do
     if i ~= G.focused_profile and love.filesystem.getInfo(i..'/'..'profile.jkr') then G:load_profile(i) end
-end
-G:load_profile(G.focused_profile)"""
+end"""
 position = "at"
 payload = """for _, i in ipairs(SMODS.Mods.ProfilesPlus.config.save_order) do
-  if i ~= G.focused_profile and love.filesystem.getInfo(i..'/'..'profile.jkr') then G:load_profile(i) end
-end
-G:load_profile(G.focused_profile)"""
+  if i ~= G.focused_profile and love.filesystem.getInfo(i..'/profile.jkr') then G:load_profile(i) end
+end"""
 match_indent = true
 
 [[patches]]
@@ -60,26 +56,18 @@ position = "at"
 payload = """else
 local save_order = SMODS.Mods.ProfilesPlus.config.save_order
 G.PROFILES[G.focused_profile] = nil
-local option_index = save_order.reverse[tostring(G.focused_profile)]
-if G.focused_profile >= 128 and G.focused_profile < 2 ^ 32 then
+local option_index = SMODS.Mods.ProfilesPlus.save_order_reverse(G.focused_profile)
+if G.focused_profile:sub(1, 3) == "pp_" then
     table.remove(save_order, option_index)
-    for index = option_index, #save_order do
-        save_order.reverse[tostring(save_order[index])] = index
-    end
-    save_order.reverse.New = #save_order + 1
-    save_order.reverse[tostring(G.focused_profile)] = nil
     SMODS.save_mod_config(SMODS.Mods.ProfilesPlus)
 end
-local options = {}
-for index, id in ipairs(save_order) do
-    options[index] = tostring(id)
-end
+local options = SMODS.shallow_copy(save_order)
 table.insert(options, "New")
 G.OVERLAY_MENU:get_UIE_by_ID("profile_option_cycle").children[1]:remove()
 G.OVERLAY_MENU:add_child(create_option_cycle { options = options, current_option = option_index, ref_table = G, ref_value = "focused_profile", opt_callback = "scroll_profiles" },
     G.OVERLAY_MENU:get_UIE_by_ID("profile_option_cycle"))
 G.FUNCS.scroll_profiles({
-    from_key = option_index, from_val = tostring(G.focused_profile), to_key = option_index, to_val = save_order[option_index] or "New",
+    from_key = option_index, from_val = G.focused_profile, to_key = option_index, to_val = save_order[option_index] or "New",
     cycle_config = G.OVERLAY_MENU:get_UIE_by_ID("profile_option_cycle").children[1].config })"""
 match_indent = true
 
@@ -93,8 +81,8 @@ G.FUNCS.change_tab(tab_but)"""
 position = "at"
 payload = """G.FILE_HANDLER.force = true
 
-local to_key = SMODS.Mods.ProfilesPlus.config.save_order.reverse[tostring(G.focused_profile)]
+local to_key = SMODS.Mods.ProfilesPlus.save_order_reverse(G.focused_profile)
 G.FUNCS.scroll_profiles({ 
-    from_key = to_key, from_val = tostring(G.focused_profile), to_key = to_key, to_val = tostring(G.focused_profile),
+    from_key = to_key, from_val = G.focused_profile, to_key = to_key, to_val = G.focused_profile,
     cycle_config = G.OVERLAY_MENU:get_UIE_by_ID("profile_option_cycle").children[1].config })"""
 match_indent = true
