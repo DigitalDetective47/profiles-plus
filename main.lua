@@ -42,7 +42,7 @@ end
 
 function SMODS.Mods.ProfilesPlus.set_modpack()
     SMODS.Mods.ProfilesPlus.config.modpacks[G.SETTINGS.profile] = SMODS.Mods.ProfilesPlus.config.modpacks
-    [G.SETTINGS.profile] or {}
+        [G.SETTINGS.profile] or {}
     for id, mod in pairs(SMODS.Mods) do
         SMODS.Mods.ProfilesPlus.config.modpacks[G.SETTINGS.profile][id] = not mod.disabled
     end
@@ -71,8 +71,18 @@ function G.FUNCS.scroll_profiles(args)
     ---@type UIElement
     local profile_swapper = G.OVERLAY_MENU:get_UIE_by_ID("profile_swapper")
     profile_swapper.config.object:remove()
+    ---Generate a random new profile id that is guaranteed to be free
+    ---@return string
+    local function generate_profile_id()
+        ---@type string
+        local ret
+        repeat
+            ret = "pp_" .. math.random(0, 2 ^ 32 - 1)
+        until not love.filesystem.getInfo(ret .. '/profile.jkr')
+        return ret
+    end
     profile_swapper.config.object = UIBox {
-        definition = G.UIDEF.profile_option(args.to_val == "New" and "pp_" .. math.random(0, 2 ^ 32 - 1) or G.focused_profile),
+        definition = G.UIDEF.profile_option(args.to_val == "New" and generate_profile_id() or G.focused_profile),
         config = { parent = profile_swapper } }
     G.OVERLAY_MENU:recalculate()
 end
