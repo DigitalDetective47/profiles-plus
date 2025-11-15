@@ -18,34 +18,6 @@ function SMODS.Mods.ProfilesPlus.save_order_reverse(value)
     sendErrorMessage(value .. " could not be found in save order.", "ProfilesPlus.save_order_reverse")
 end
 
-if G.SETTINGS.profile:sub(1, 3) == "pp_" and not SMODS.Mods.ProfilesPlus.save_order_reverse(G.SETTINGS.profile) then
-    table.insert(SMODS.Mods.ProfilesPlus.config.save_order, G.SETTINGS.profile)
-    SMODS.save_mod_config(SMODS.Mods.ProfilesPlus)
-end
-for index = #SMODS.Mods.ProfilesPlus.config.save_order, 1, -1 do
-    if not love.filesystem.getInfo(SMODS.Mods.ProfilesPlus.config.save_order[index] .. '/profile.jkr') then
-        table.remove(SMODS.Mods.ProfilesPlus.config.save_order, index)
-    end
-end
-
-local profile_option_hook = G.UIDEF.profile_option
-function G.UIDEF.profile_option(_profile)
-    G.PROFILES[_profile] = G.PROFILES[_profile] or {}
-    return profile_option_hook(_profile)
-end
-
----@param args { from_key: integer, from_val: string, to_key: integer, to_val: string, cycle_config: { [string]: any } }
-function G.FUNCS.scroll_profiles(args)
-    G.focused_profile = args.to_val or "New"
-    ---@type UIElement
-    local profile_swapper = G.OVERLAY_MENU:get_UIE_by_ID("profile_swapper")
-    profile_swapper.config.object:remove()
-    profile_swapper.config.object = UIBox {
-        definition = G.UIDEF.profile_option(args.to_val == "New" and "pp_" .. math.random(0, 2 ^ 32 - 1) or G.focused_profile),
-        config = { parent = profile_swapper } }
-    G.OVERLAY_MENU:recalculate()
-end
-
 ---@return string[]
 function SMODS.Mods.ProfilesPlus.get_options()
     ---@type string[]
@@ -66,6 +38,43 @@ function SMODS.Mods.ProfilesPlus.get_options()
         end
     end
     return ret
+end
+
+function SMODS.Mods.ProfilesPlus.set_modpack()
+    SMODS.Mods.ProfilesPlus.config.modpacks[G.SETTINGS.profile] = SMODS.Mods.ProfilesPlus.config.modpacks
+    [G.SETTINGS.profile] or {}
+    for id, mod in pairs(SMODS.Mods) do
+        SMODS.Mods.ProfilesPlus.config.modpacks[G.SETTINGS.profile][id] = not mod.disabled
+    end
+    SMODS.save_mod_config(SMODS.Mods.ProfilesPlus)
+end
+
+if G.SETTINGS.profile:sub(1, 3) == "pp_" and not SMODS.Mods.ProfilesPlus.save_order_reverse(G.SETTINGS.profile) then
+    table.insert(SMODS.Mods.ProfilesPlus.config.save_order, G.SETTINGS.profile)
+end
+for index = #SMODS.Mods.ProfilesPlus.config.save_order, 1, -1 do
+    if not love.filesystem.getInfo(SMODS.Mods.ProfilesPlus.config.save_order[index] .. '/profile.jkr') then
+        table.remove(SMODS.Mods.ProfilesPlus.config.save_order, index)
+    end
+end
+SMODS.Mods.ProfilesPlus.set_modpack()
+
+local profile_option_hook = G.UIDEF.profile_option
+function G.UIDEF.profile_option(_profile)
+    G.PROFILES[_profile] = G.PROFILES[_profile] or {}
+    return profile_option_hook(_profile)
+end
+
+---@param args { from_key: integer, from_val: string, to_key: integer, to_val: string, cycle_config: { [string]: any } }
+function G.FUNCS.scroll_profiles(args)
+    G.focused_profile = args.to_val or "New"
+    ---@type UIElement
+    local profile_swapper = G.OVERLAY_MENU:get_UIE_by_ID("profile_swapper")
+    profile_swapper.config.object:remove()
+    profile_swapper.config.object = UIBox {
+        definition = G.UIDEF.profile_option(args.to_val == "New" and "pp_" .. math.random(0, 2 ^ 32 - 1) or G.focused_profile),
+        config = { parent = profile_swapper } }
+    G.OVERLAY_MENU:recalculate()
 end
 
 ---@return UIBox

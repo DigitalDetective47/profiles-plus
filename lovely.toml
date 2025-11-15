@@ -16,35 +16,75 @@ match_indent = true
 [[patches]]
 [patches.pattern]
 target = "game.lua"
-pattern = "if not G.PROFILES[_profile] then _profile = 1 end"
+pattern = """function Game:load_profile(_profile)
+    if not G.PROFILES[_profile] then _profile = 1 end"""
 position = "at"
-payload = """_profile = tostring(_profile)
-G.SETTINGS.profile = tostring(G.SETTINGS.profile)
-_profile = _profile or G.SETTINGS.profile
-G.PROFILES[_profile] = G.PROFILES[_profile] or {}"""
+payload = """function Game:load_profile(_profile, info_only)
+    _profile = tostring(_profile)
+    G.PROFILES[_profile] = G.PROFILES[_profile] or {}
+    local previous_profile = G.SETTINGS.profile"""
 match_indent = true
 [[patches]]
 [patches.pattern]
 target = "game.lua"
 pattern = """if info ~= nil then
-for k, v in pairs(STR_UNPACK(info)) do
-    G.PROFILES[G.SETTINGS.profile][k] = v
-end"""
+    for k, v in pairs(STR_UNPACK(info)) do
+        G.PROFILES[G.SETTINGS.profile][k] = v
+    end"""
 position = "after"
-payload = """elseif _profile:sub(1, 3) == "_pp" and SMODS.Mods then
+payload = """    if not info_only and SMODS and SMODS.Mods and SMODS.Mods.ProfilesPlus.config.enable_modpacks and SMODS.Mods.ProfilesPlus.config.modpacks[_profile] then
+        local restart = false
+        for id, in_new_pack in pairs(SMODS.Mods.ProfilesPlus.config.modpacks[_profile]) do
+            if in_new_pack == not not SMODS.Mods[id].disabled then
+                restart = true
+                if in_new_pack then
+                    NFS.remove(SMODS.Mods[id].path .. '.lovelyignore')
+                else
+                    NFS.write(SMODS.Mods[id].path .. '.lovelyignore', '')
+                end
+            end
+        end
+        if restart then
+            compress_and_save('settings.jkr', G.SETTINGS)
+            SMODS.save_all_config()
+            SMODS.restart_game()
+        end
+    end
+elseif _profile:sub(1, 3) == "_pp" and SMODS and SMODS.Mods then
     table.insert(SMODS.Mods.ProfilesPlus.config.save_order, _profile)
     SMODS.save_mod_config(SMODS.Mods.ProfilesPlus)"""
 match_indent = true
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = """end
 
+function Game:set_language()"""
+position = "before"
+payload = """   if info_only then
+        G.SETTINGS.profile = previous_profile
+    else
+        SMODS.Mods.ProfilesPlus.set_modpack()
+    end"""
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "self:load_profile(G.SETTINGS.profile or 1)"
+position = "at"
+payload = "self:load_profile(G.SETTINGS.profile or '1', true)"
+match_indent = true
 [[patches]]
 [patches.pattern]
 target = "functions/button_callbacks.lua"
 pattern = """for i = 1, 3 do
     if i ~= G.focused_profile and love.filesystem.getInfo(i..'/'..'profile.jkr') then G:load_profile(i) end
-end"""
+end
+G:load_profile(G.focused_profile)"""
 position = "at"
-payload = """for _, i in ipairs(SMODS.Mods.ProfilesPlus.config.save_order) do
-  if i ~= G.focused_profile and love.filesystem.getInfo(i..'/profile.jkr') then G:load_profile(i) end
+payload = """for _, i in ipairs(SMODS.Mods.ProfilesPlus.get_options()) do
+  if love.filesystem.getInfo(i..'/profile.jkr') then G:load_profile(i, true) end
 end"""
 match_indent = true
 
