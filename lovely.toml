@@ -18,7 +18,9 @@ match_indent = true
 target = "game.lua"
 pattern = "if not G.PROFILES[_profile] then _profile = 1 end"
 position = "at"
-payload = """_profile = _profile or G.SETTINGS.profile
+payload = """_profile = tostring(_profile)
+G.SETTINGS.profile = tostring(G.SETTINGS.profile)
+_profile = _profile or G.SETTINGS.profile
 G.PROFILES[_profile] = G.PROFILES[_profile] or {}"""
 match_indent = true
 [[patches]]
@@ -29,7 +31,7 @@ for k, v in pairs(STR_UNPACK(info)) do
     G.PROFILES[G.SETTINGS.profile][k] = v
 end"""
 position = "after"
-payload = """elseif SMODS.Mods then
+payload = """elseif _profile:sub(1, 3) == "_pp" and SMODS.Mods then
     table.insert(SMODS.Mods.ProfilesPlus.config.save_order, _profile)
     SMODS.save_mod_config(SMODS.Mods.ProfilesPlus)"""
 match_indent = true
@@ -56,15 +58,13 @@ position = "at"
 payload = """else
 local save_order = SMODS.Mods.ProfilesPlus.config.save_order
 G.PROFILES[G.focused_profile] = nil
-local option_index = SMODS.Mods.ProfilesPlus.save_order_reverse(G.focused_profile)
+local option_index = G.OVERLAY_MENU:get_UIE_by_ID("profile_option_cycle").children[1].children[1].children[1].config.ref_table.current_option
 if G.focused_profile:sub(1, 3) == "pp_" then
-    table.remove(save_order, option_index)
+    table.remove(save_order, SMODS.Mods.ProfilesPlus.save_order_reverse(G.focused_profile))
     SMODS.save_mod_config(SMODS.Mods.ProfilesPlus)
 end
-local options = SMODS.shallow_copy(save_order)
-table.insert(options, "New")
 G.OVERLAY_MENU:get_UIE_by_ID("profile_option_cycle").children[1]:remove()
-G.OVERLAY_MENU:add_child(create_option_cycle { options = options, current_option = option_index, ref_table = G, ref_value = "focused_profile", opt_callback = "scroll_profiles" },
+G.OVERLAY_MENU:add_child(create_option_cycle { options = SMODS.Mods.ProfilesPlus.get_options(), current_option = option_index, ref_table = G, ref_value = "focused_profile", opt_callback = "scroll_profiles" },
     G.OVERLAY_MENU:get_UIE_by_ID("profile_option_cycle"))
 G.FUNCS.scroll_profiles({
     from_key = option_index, from_val = G.focused_profile, to_key = option_index, to_val = save_order[option_index] or "New",
