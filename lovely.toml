@@ -50,7 +50,7 @@ payload = """    if not info_only and SMODS and SMODS.Mods and SMODS.Mods.Profil
             SMODS.restart_game()
         end
     end
-elseif _profile:sub(1, 3) == "_pp" and SMODS and SMODS.Mods then
+elseif _profile:sub(1, 3) == "pp_" and SMODS and SMODS.Mods then
     table.insert(SMODS.Mods.ProfilesPlus.config.save_order, _profile)
     SMODS.save_mod_config(SMODS.Mods.ProfilesPlus)"""
 match_indent = true
