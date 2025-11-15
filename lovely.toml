@@ -35,7 +35,7 @@ position = "after"
 payload = """    if not info_only and SMODS and SMODS.Mods and SMODS.Mods.ProfilesPlus.config.enable_modpacks and SMODS.Mods.ProfilesPlus.config.modpacks[_profile] then
         local restart = false
         for id, in_new_pack in pairs(SMODS.Mods.ProfilesPlus.config.modpacks[_profile]) do
-            if in_new_pack == not not SMODS.Mods[id].disabled then
+            if SMODS.Mods[id] and in_new_pack == (SMODS.Mods[id].disabled or false) then
                 restart = true
                 if in_new_pack then
                     NFS.remove(SMODS.Mods[id].path .. '.lovelyignore')
