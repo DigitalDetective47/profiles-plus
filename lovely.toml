@@ -127,3 +127,17 @@ G.FUNCS.scroll_profiles({
     from_key = to_key, from_val = G.focused_profile, to_key = to_key, to_val = G.focused_profile,
     cycle_config = G.OVERLAY_MENU:get_UIE_by_ID("profile_option_cycle").children[1].config })"""
 match_indent = true
+
+# allow playing Cryptid on any profile
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = """if type(G.SETTINGS.profile) ~= "string" or G.SETTINGS.profile:sub(1, #Cryptid.profile_prefix) ~= Cryptid.profile_prefix then
+    G.SETTINGS.profile = Cryptid.profile_prefix .. "1"
+end
+for i = 1, 3 do
+    G.PROFILES[Cryptid.profile_prefix .. i] = {}
+end"""
+position = "at"
+payload = ""
+match_indent = true
