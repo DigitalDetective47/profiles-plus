@@ -141,3 +141,15 @@ end"""
 position = "at"
 payload = ""
 match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = '''=[SMODS _ "src/utils.lua"]'''
+pattern = """function convert_save_data()"""
+position = "after"
+payload = """
+if not G.PROFILES[G.SETTINGS.profile] then
+	G.SETTINGS.profile = next(G.PROFILES)
+end
+"""
+match_indent = true
