@@ -7,6 +7,6 @@
     "description": "Allows the creation of unlimited profiles, and allows for modlists to be associated with them",
     "prefix": "profile",
     "main_file": "main.lua",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "priority": 115
 }
