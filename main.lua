@@ -1,3 +1,10 @@
+SMODS.Atlas {
+    key = "modicon",
+    path = "icon.png",
+    px = 34,
+    py = 34,
+}
+
 ---@type table<string, integer>
 local save_order_reverse_cache = {}
 ---perform a cached reverse lookup on `SMODS.Mods.ProfilesPlus.config.save_order`
