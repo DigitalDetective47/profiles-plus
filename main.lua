@@ -44,7 +44,16 @@ function SMODS.Mods.ProfilesPlus.set_modpack()
     SMODS.Mods.ProfilesPlus.config.modpacks[G.SETTINGS.profile] = SMODS.Mods.ProfilesPlus.config.modpacks
         [G.SETTINGS.profile] or {}
     for id, mod in pairs(SMODS.Mods) do
-        SMODS.Mods.ProfilesPlus.config.modpacks[G.SETTINGS.profile][id] = not mod.disabled
+        if not mod.meta_mod and id ~= "ProfilesPlus" then
+            SMODS.Mods.ProfilesPlus.config.modpacks[G.SETTINGS.profile][id] = not mod.disabled
+        end
+    end
+    for _, pack in pairs(SMODS.Mods.ProfilesPlus.config.modpacks) do
+        for id, _ in pairs(pack) do
+            if not SMODS.Mods[id] or SMODS.Mods[id].meta_mod or id == "ProfilesPlus" then
+                pack[id] = nil
+            end
+        end
     end
     SMODS.save_mod_config(SMODS.Mods.ProfilesPlus)
 end
@@ -85,6 +94,12 @@ function G.FUNCS.scroll_profiles(args)
         definition = G.UIDEF.profile_option(args.to_val == "New" and generate_profile_id() or G.focused_profile),
         config = { parent = profile_swapper } }
     G.OVERLAY_MENU:recalculate()
+end
+
+---@param args { from_key: integer, from_val: string, to_key: integer, to_val: string, cycle_config: { [string]: any } }
+function G.FUNCS.set_mod_default(args)
+    local values = { [1] = true, [2] = false, [3] = nil }
+    SMODS.Mods.ProfilesPlus.config.mod_default = values[args.to_key]
 end
 
 ---@return UIBox

@@ -1,11 +1,19 @@
 {
     "misc": {
         "profile_UI": {
-            "modpacks": "Store Profile Modlists",
             "permanent_options": "Always Visible Profile IDs",
             "Balatro": "Balatro",
             "more_profiles": "More Profiles",
-            "Cryptid": "Cryptid"
+            "Cryptid": "Cryptid",
+            "modpack_header": "Modlists",
+            "modpacks": "Store Profile Modlists",
+            "forget": "Forget Uninstalled Mods",
+            "mod_default": "Setting for New Mods",
+            "mod_default_options": [
+                "Enabled",
+                "Disabled",
+                "Use Previous Setting"
+            ]
         }
     }
 }
