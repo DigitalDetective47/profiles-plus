@@ -7,6 +7,10 @@
     "description": "Allows the creation of unlimited profiles, and allows for modlists to be associated with them",
     "prefix": "profile",
     "main_file": "main.lua",
-    "version": "1.1.0~0b15b",
-    "priority": 115
+    "version": "1.1.0",
+    "priority": 115,
+    "dependencies": [
+        "Steamodded (>=1.0.0~BETA-1403d)",
+        "Lovely (>=0.9)"
+    ]
 }

@@ -47,10 +47,10 @@ payload = """    if not info_only and SMODS and SMODS.Mods and SMODS.Mods.Profil
                 end
                 if add then
                     restart = true
-                    NFS.remove(mod.path .. '.lovelyignore')
+                    require"SMODS.preflight.loader".removeFromBlacklist(mod.blacklist_name)
                 elseif remove then
                     restart = true
-                    NFS.write(mod.path .. '.lovelyignore', '')
+                    require"SMODS.preflight.loader".addToBlacklist(mod.blacklist_name)
                 end
             end
         end
