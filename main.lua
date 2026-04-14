@@ -65,6 +65,7 @@ function SMODS.Mods.ProfilesPlus.set_modpack()
     SMODS.save_mod_config(SMODS.Mods.ProfilesPlus)
 end
 
+G.SETTINGS.profile = tostring(G.SETTINGS.profile)
 if G.SETTINGS.profile:sub(1, 3) == "pp_" and not SMODS.Mods.ProfilesPlus.save_order_reverse(G.SETTINGS.profile) then
     table.insert(SMODS.Mods.ProfilesPlus.config.save_order, G.SETTINGS.profile)
 end
