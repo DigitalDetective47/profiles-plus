@@ -15,7 +15,6 @@ function SMODS.Mods.ProfilesPlus.save_order_reverse(value)
             return k
         end
     end
-    sendErrorMessage(value .. " could not be found in save order.", "ProfilesPlus.save_order_reverse")
 end
 
 ---@return string[]
