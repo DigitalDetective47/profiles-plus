@@ -163,3 +163,11 @@ if not G.PROFILES[G.SETTINGS.profile] then
 end
 """
 match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = '''=[FlowerPot-STATS _ "core/stats/other.lua"]'''
+pattern = "function FlowerPot.convert_save_data()"
+position = "after"
+payload = "G.SETTINGS.profile = tostring(G.SETTINGS.profile)"
+match_indent = true
